@@ -4,8 +4,10 @@ import { User } from "./entity/User"
 import usersRouter from "./routes/users"
 import { Request,Response } from "express-serve-static-core"
 import { DataSource } from "typeorm";
+const bodyParser = require('body-parser');
 
 const app =express();
+app.use(bodyParser.json());
 
 export const AppDataSource = new DataSource({
     type: "postgres",

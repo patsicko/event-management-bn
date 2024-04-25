@@ -48,6 +48,8 @@ class UserController {
 
     try{
         userRepository = AppDataSource.getRepository(User)
+
+        console.log("post request.body",request.body)
       const userDto:CreateUserDto={
             firstName:"MANIBAHO",
             lastName: "Patrick",
@@ -67,10 +69,49 @@ class UserController {
     }
 
 
-      async updateUser(request:Request<{},{},UpdateUserDto>,response:Response){
+      async updateUser(request: Request<{id:number}, {}, UpdateUserDto>, response: Response){
+
+        console.log("req.body",request.body)
     
+        try{
+            userRepository= AppDataSource.getRepository(User);
+        const {id} = request.params;
+
+        const existingUser = await userRepository.findOneBy({id});
+
+
+       console.log("existing user",existingUser)
+
+        if(!existingUser){
+            response.status(404).json({
+                status:404,
+                message:"user not found"
+            })
+        }
+
+        const {firstName,lastName,email}=request.body || {};
+
+
+        console.log(`"fname":${firstName} lastname:${lastName} email:${email}`)
+
         
 
+        existingUser.firstName=firstName
+        existingUser.lastName=lastName
+        existingUser.email = email
+
+        const updatedUser = await userRepository.save(existingUser);
+
+        response.status(201).json({
+            status:201,
+            data:{
+                updatedUser:updatedUser
+            }
+        })
+
+        }catch(error){
+            response.status(500).send({error:error.message})
+        }
 
     }
 }
