@@ -7,7 +7,7 @@ import { Event } from "../entity/Event";
 
  class EventController {
 
-async createEvent(request:Request,response:Response){
+async createEvent(request:Request<{id:number}>,response:Response){
     try{
 
         const eventRepository=AppDataSource.getRepository(Event);
@@ -30,6 +30,50 @@ async createEvent(request:Request,response:Response){
     }catch(error){
         response.status(500).send({error:error.message})
     }
+
+}
+
+
+async getEvent(request:Request<{id:number}>,response:Response){
+  try{
+    const eventRepository=AppDataSource.getRepository(Event);
+
+   const events= await eventRepository.find();
+
+   response.status(200).json({
+    status:200,
+    data:events
+   })
+
+  }catch(error){
+    response.status(500).send({error:error.message})
+}
+
+}
+
+async getEventById(request:Request<{id:number}>,response:Response){
+  try{
+    const eventRepository=AppDataSource.getRepository(Event);
+
+    const {id} = request.params
+
+   const event= await eventRepository.findOne({where:{id}});
+
+   if(!event){
+    response.status(404).json({
+      status:404,
+      message:'Event not found'
+    })
+   }
+
+   response.status(200).json({
+    status:200,
+    data:event
+   })
+
+  }catch(error){
+    response.status(500).send({error:error.message})
+}
 
 }
 
