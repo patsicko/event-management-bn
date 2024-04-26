@@ -5,46 +5,41 @@ import usersRouter from "./routes/users"
 import { Request,Response } from "express-serve-static-core"
 import { DataSource } from "typeorm";
 import { seedAdmin } from "./handlers/seedAdmin";
+import { Booking } from "./entity/Booking";
+import {Event} from './entity/Event'
+import mainRouter from "./routes/routers";
 const bodyParser = require('body-parser');
-
+import dotenv = require('dotenv');
+ dotenv.config()
 const app =express();
 app.use(bodyParser.json());
 
+console.log("env data",process.env.DB_USER)
+
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: "localhost",
+    host: process.env.DB_HOST,
     port: 5432,
-    username: "postgres",
-    password: "postgres",
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     database: "postgres",
     synchronize: true,
     logging: false,
-    entities: [User],
+    entities: [User,Event,Booking],
     migrations: [],
     subscribers: [],
 })
 
 AppDataSource.initialize().then(async () => {
 
-    // console.log("Inserting a new user into the database...")
-    // const user = new User()
-    // user.firstName = "Timber"
-    // user.lastName = "Saw"
-    // user.age = 25
-    // await AppDataSource.manager.save(user)
-    // console.log("Saved a new user with id: " + user.id)
+   
 
-    // console.log("Loading users from the database...")
-    // const users = await AppDataSource.manager.find(User)
-    // console.log("Loaded users: ", users)
+   const PORT = process.env.PORT || 3000
 
-   const PORT = process.env.port || 3000
+   app.use('/api',mainRouter);
+   
 
-   app.use('/api/users',usersRouter);
 
-//    app.get('',(request:Request,response:Response)=>{
-//     response.send(users)
-//    })
  const startApp = async()=>{
     await seedAdmin();
     app.listen(PORT,()=>{

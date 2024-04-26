@@ -145,8 +145,6 @@ class UserController {
 
     }
 
-
-
     async loginUser(request: Request, response: Response) {
         try {
             const { email, password } = request.body;
