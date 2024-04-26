@@ -3,6 +3,9 @@ import { CreateUserDto } from "../dtos/CreateUser.dto";
 import { AppDataSource } from "../index";
 import { User } from "../entity/User";
 import { Repository } from "typeorm";
+import  * as bcrypt from "bcrypt"
+import * as jwt from "jsonwebtoken";
+import config from "../config/keys"
 import { UpdateUserDto } from "../dtos/UpdateUser.tdo";
 
 let userRepository:any
@@ -47,14 +50,18 @@ class UserController {
    async createUser(request: Request<{}, {}, CreateUserDto>, response: Response){
 
     try{
-        userRepository = AppDataSource.getRepository(User)
 
-        console.log("post request.body",request.body)
+        userRepository = AppDataSource.getRepository(User);
+
+         const {firstName,lastName,email,password} = request.body
+        const saltRound = 10;
+        const hashedPassword = await bcrypt.hash(password,saltRound);
+       
       const userDto:CreateUserDto={
-            firstName:"MANIBAHO",
-            lastName: "Patrick",
-            email:"patsicko@gmail.com",
-            password:"musanze"
+            firstName,
+            lastName,
+            email,
+            password:hashedPassword
         }
 
         const user = await userRepository.save(userDto);
@@ -69,7 +76,7 @@ class UserController {
     }
 
 
-      async updateUser(request: Request<{id:number}, {}, UpdateUserDto>, response: Response){
+    async updateUser(request: Request<{id:number}, {}, UpdateUserDto>, response: Response){
 
         console.log("req.body",request.body)
     
@@ -91,11 +98,6 @@ class UserController {
 
         const {firstName,lastName,email}=request.body || {};
 
-
-        console.log(`"fname":${firstName} lastname:${lastName} email:${email}`)
-
-        
-
         existingUser.firstName=firstName
         existingUser.lastName=lastName
         existingUser.email = email
@@ -113,6 +115,65 @@ class UserController {
             response.status(500).send({error:error.message})
         }
 
+    }
+
+
+   async deleteUser(request:Request<{id:number}>,response:Response){
+    
+    try{
+        userRepository= AppDataSource.getRepository(User);
+     const {id} = request.params
+      const user= await userRepository.findOneBy({id});
+
+      console.log("user to delete",user)
+
+      if(!user){
+        response.send("user not found");
+        return
+      }
+      await userRepository.remove(user);
+
+      response.status(204).json({
+        status:204,
+        message:'user deleted successfully',
+        data:{}
+      })
+
+    }catch(error){
+        response.status(500).send({error:error.message})
+    }
+
+    }
+
+
+
+    async loginUser(request: Request, response: Response) {
+        try {
+            const { email, password } = request.body;
+
+            
+            userRepository= AppDataSource.getRepository(User);
+            const user = await userRepository.findOne({ where: { email } });
+            if (!user) {
+                return response.status(400).json({ message: "Invalid credentials" });
+            }
+
+            
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                return response.status(400).json({ message: "Invalid credentials" });
+            }
+
+          
+            const token = jwt.sign({ user:user}, config.jwtSecret, { expiresIn: "1h" });
+
+            response.status(200).json({
+                message: "Login successful",
+                token
+            });
+        } catch (error) {
+            response.status(500).send({ error: error.message });
+        }
     }
 }
 
