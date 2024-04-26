@@ -1,7 +1,6 @@
 export interface UpdateUserDto{
-    firstName:string,
-    lastName: string,
-    email:string,
-    
-
+    firstName?:string,
+    lastName?: string,
+    email?:string,
+    role?:string
 }

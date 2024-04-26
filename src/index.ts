@@ -4,6 +4,7 @@ import { User } from "./entity/User"
 import usersRouter from "./routes/users"
 import { Request,Response } from "express-serve-static-core"
 import { DataSource } from "typeorm";
+import { seedAdmin } from "./handlers/seedAdmin";
 const bodyParser = require('body-parser');
 
 const app =express();
@@ -44,10 +45,13 @@ AppDataSource.initialize().then(async () => {
 //    app.get('',(request:Request,response:Response)=>{
 //     response.send(users)
 //    })
-
-   app.listen(PORT,()=>{
-    console.log(`listening on http://localhost:${PORT}`)
-   })
-
+ const startApp = async()=>{
+    await seedAdmin();
+    app.listen(PORT,()=>{
+        console.log(`listening on http://localhost:${PORT}`)
+       })
+ }
+   
+ startApp()
 
 }).catch(error => console.log(error))
