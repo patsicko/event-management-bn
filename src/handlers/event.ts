@@ -12,7 +12,7 @@ async createEvent(request:Request<{id:number}>,response:Response){
 
         const eventRepository=AppDataSource.getRepository(Event);
         const {title,date,location,availableTickets}=request.body;
-
+   console.log("body",request.body)
         const event:CreateEventDto={
         title,
         date,

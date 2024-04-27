@@ -8,7 +8,7 @@ const usersRouter = Router();
 usersRouter.get('/',UserController.getUsers)
 
 usersRouter.get('/:id',UserController.getUserById);
-usersRouter.post('/',authMiddleware,UserController.createUser);
+usersRouter.post('/',UserController.createUser);
 usersRouter.patch('/:id',UserController.updateUser);
 usersRouter.delete('/:id',authMiddleware,isAdmin,UserController.deleteUser);
 usersRouter.post('/login',UserController.loginUser)

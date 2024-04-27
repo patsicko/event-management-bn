@@ -7,7 +7,7 @@
       "build": "rm -rf dist && tsc",
       "start": "npm run build && node dist/index.js",
       "dev": "nodemon ./src/index.ts",
-      "kill": "sudo kill -9 $(sudo lsof -t -i :3001)",
+      "kill": "sudo kill -9 $(sudo lsof -t -i :3000)",
       "test": "echo \"Error: no test specified\" && exit 1",
       "typeorm": "typeorm-ts-node-commonjs"
    },
